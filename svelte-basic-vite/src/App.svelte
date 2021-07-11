@@ -1,23 +1,35 @@
 <script lang="ts">
-  import logo from './assets/svelte.png'
-  import Counter from './lib/Counter.svelte'
+  import { onMount } from "svelte";
+  import axios from "axios";
+  let dogImage = ''
+  let dogBreed = ''
+  const RANDOM_DOGS_URL = 'https://dog.ceo/api/breeds/image/random';
+  const getBreed = (imageName: string) => {
+    // https://images.dog.ceo/breeds/pug/xxxxx.jpg
+    return imageName.match(/(?<=breeds\/)\w+/);
+  }
+  const getDogImage = async() => {
+    axios
+      .get(RANDOM_DOGS_URL)
+      .then((res) => {
+        const {data} = res
+        dogImage = data.message
+        if (getBreed(dogImage) !== null) {
+          dogBreed = getBreed(dogImage);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+  onMount(getDogImage)
 </script>
 
 <main>
-  <img src={logo} alt="Svelte Logo" />
-  <h1>Hello Typescript!</h1>
-
-  <Counter />
-
-  <p>
-    Visit <a href="https://svelte.dev">svelte.dev</a> to learn how to build Svelte
-    apps.
-  </p>
-
-  <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme">SvelteKit</a> for
-    the officially supported framework, also powered by Vite!
-  </p>
+  <div class='dog'>
+    <img src={dogImage} alt={dogBreed} />
+    <p>{dogBreed || 'unknown dog breed' }</p>
+  </div>
 </main>
 
 <style>
@@ -27,39 +39,13 @@
   }
 
   main {
+    margin: 0;
+    padding: 0;
     text-align: center;
-    padding: 1em;
-    margin: 0 auto;
   }
-
+  
   img {
-    height: 16rem;
-    width: 16rem;
-  }
-
-  h1 {
-    color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 4rem;
-    font-weight: 100;
-    line-height: 1.1;
-    margin: 2rem auto;
-    max-width: 14rem;
-  }
-
-  p {
-    max-width: 14rem;
-    margin: 1rem auto;
-    line-height: 1.35;
-  }
-
-  @media (min-width: 480px) {
-    h1 {
-      max-width: none;
-    }
-
-    p {
-      max-width: none;
-    }
+    width: 500px;
+    height: 480px
   }
 </style>
